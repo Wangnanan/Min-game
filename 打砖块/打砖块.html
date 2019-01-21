@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin:0px; padding:0px;}
+        #container{width:1000px;height:500px;border:orange solid 1px;margin:40px 0 0 200px;position:relative}
+        #box{box-shadow: 4px 4px 4px 0 #ccc;width:680px;font-size:55px;text-align:center;line-height:400px;height:400px;position:relative;border:orangered solid 1px;margin:20px 60px;}
+        button{background-color:#666;color:#fff;margin-left:300px;width:100px;height:30px;}
+        button:hover{  background-color: #000;}
+        #bubble{width:15px;height:15px;
+            background-color: red;
+            border-radius:50%;
+            position:absolute;
+            bottom: 12px;
+            left:180px;
+            box-shadow: 4px 4px 2px 0 #ccc;
+        }
+        #board{width:150px;height:10px;
+            background-color: orange;
+            border-radius:5px;
+            position:absolute;
+            bottom:2px;
+            box-shadow:3px 3px 2px 0 #ccc;
+            left:160px;
+            }
+        ul{list-style:none;}
+        ul>li{width:66px;height:15px;
+            background-color: #069;
+        border:solid 1px #ccc;position:absolute; }
+        #show{
+            position:absolute;
+            right:30px;
+            top:20px;
+            width:200px;
+            height:400px;
+            border:dotted 1px #888;
+            background-color: #333;
+        }
+        #show span{display:block;
+            color:#0f0;
+            font-family: "微软雅黑";
+            height:30px;
+            line-height:30px;
+            padding:5px;
+        }
+        span#info{display:block;font-size:22px;line-height:50px;height:50px;border-bottom:solid 1px #0f0}
+        #time, #res, #times, #score{border-bottom:dashed 1px #0f0}
+    </style>
+</head>
+<body>
+    <!-- 游戏面板 -->
+    <div id="container">
+    	 <!--提示信息 -->
+        <div id="show">
+            <span id="info">游戏重要信息</span>
+            <span>当前时间：</span>
+            <span id="time">加载中...</span>
+            <span>游戏状态</span>
+            <span id="res">加载中...</span>
+            <span>挡板打球次数</span>
+            <span id="times">加载中...</span>
+            <span>游戏得分</span>
+            <span id="score">加载中...</span>
+        </div>
+        <!-- 游戏区域 -->
+        <div id="box">
+            <!-- 挡板、小球、砖块 -->
+            <ul>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+            <div id="bubble"></div>
+            <div id="board"></div>
+        </div>
+        <button id="start">开始游戏</button>
+    </div>
+</body>
+</html>
+<script>
+	// 构造函数 ：  打砖块
+	// 功能 ：  初始化功能完成砖块位置摆放      挡板运动      小球运动       小球和挡板碰撞      小球和砖块的碰撞
+	//碰撞检测
+	function pz(obj1,obj2){
+		var L1 = obj1.offsetLeft;
+		var R1 = obj1.offsetLeft + obj1.offsetWidth;
+		var T1 = obj1.offsetTop;
+		var B1 = obj1.offsetTop + obj1.offsetHeight;
+		
+		var L2 = obj2.offsetLeft;
+		var R2 = obj2.offsetLeft + obj2.offsetWidth;
+		var T2 = obj2.offsetTop;
+		var B2 = obj2.offsetTop + obj2.offsetHeight;
+		
+		if( R1<L2||L1>R2||B1<T2||T1>B2 ){ //碰不上的条件
+			return false;
+		}else{
+			return true;
+		}
+	}
+	//获取任意区间值函数
+	function rand(min,max){
+	    return Math.round( Math.random()*(max-min) ) + min;
+	}
+	
+	//获取随机颜色值
+	function getColor(){
+		// 0-9  a-f    随机取出 6个字符 拼接  "#"
+		var str = "0123456789abcdef";// 0--15
+		var color = "#";  
+		for( var i = 1 ; i <= 6 ; i++ ){
+			color += str.charAt( rand(0,15) );//根据随机下标得到对应的字符 然后进行拼接
+		}
+		return color;
+	}
+	//函数的作用 就是 根据给定的id查找页面元素 
+	function $id(id){
+		return document.getElementById(id);
+	}
+	window.onload = function(){
+		initBreaker();
+		fnKeydown();
+		document.getElementById("start").onclick = function(){
+			timer = setInterval(function (){
+				document.getElementById("time").innerHTML = new Date().toLocaleString();
+			},1000)
+			move();		
+		}
+	}
+	//砖块left  初始值  top初始值
+	var leftInit = 0;
+	var topInit = 0;
+	var list = $id("box").children[0].children;
+	var board = $id("board");
+	var ball = $id("bubble");
+	function initBreaker(){
+		//砖块摆放
+		for( var i = 0 ; i < list.length ; i++ ){
+			list[i].style.background = getColor();
+			list[i].style.left = leftInit*list[0].offsetWidth + "px";
+			list[i].style.top = topInit +"px";
+			leftInit++;
+			//每10个砖块换行
+			if( i % 10 == 9 ){
+				leftInit = 0;
+				topInit += list[0].offsetHeight;
+			}
+		}
+	}
+	function fnKeydown(){
+		document.onkeydown = function(e){
+			var e = e || event;
+			var code = e.keyCode || e.which;
+			switch( code ){
+				case 37 : {
+					board.style.left = board.offsetLeft - 8 + "px";
+					if( board.offsetLeft <= 0 ){
+						board.style.left = 0;
+					}
+					break;
+				}
+				case 39 : {
+					board.style.left = board.offsetLeft + 8 + "px";
+					if( board.offsetLeft >= box.offsetWidth - board.offsetWidth ){
+						board.style.left = box.offsetWidth - board.offsetWidth + "px";
+					}
+					break;
+				}
+			}
+		}
+	}
+	function move(){
+		var speedX = 2;
+		var speedY = -1;
+		var timer = setInterval(function(){
+			ball.style.left = ball.offsetLeft + speedX +"px";
+			ball.style.top = ball.offsetTop + speedY +"px";
+			if( ball.offsetLeft < 0 ){
+				speedX *= -1;
+			}
+			if( ball.offsetLeft > box.offsetWidth - ball.offsetWidth ){
+				speedX *= -1;
+			}
+			if( ball.offsetTop < 0 ){
+				speedY *= -1;
+			}
+			//小球落地 游戏结束
+			if( ball.offsetTop >= box.offsetHeight - ball.offsetHeight ){
+				box.appendChild( document.createTextNode("Game Over") ) ;
+				clearInterval(timer);
+				clearInterval(timer);
+				alert("游戏结束");
+			}
+			
+			// 小球和挡板碰撞 反弹
+			if( pz(ball,board) ){
+				speedY *= -1;
+			}
+			
+			//小球和砖块的碰撞  砖块消失   小球反弹
+			for( var i = 0 ; i < list.length ; i++ ){
+				if( pz( ball , list[i] ) ){
+					list[i].style.display = "none";
+					speedY *= -1;
+				}
+			}
+		},10)
+	}
+</script>
